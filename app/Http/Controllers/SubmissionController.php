@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\SubmissionRequest;
+use Illuminate\Http\Response;
 use Exception;
 use App\DTO\SubmissionData;
 use App\Jobs\ProcessSubmission;
-use App\Repositories\SubmissionRepositoryInterface;
 
 /**
  * @OA\Info(
@@ -16,10 +16,6 @@ use App\Repositories\SubmissionRepositoryInterface;
  */
 class SubmissionController extends Controller
 {
-    public function __construct(
-        private readonly SubmissionRepositoryInterface $submissionRepository
-    ) {}
-
     /**
      * Handle the incoming request.
      *
@@ -50,19 +46,14 @@ class SubmissionController extends Controller
      *     )
      * )
      */
-    public function submit(Request $request)
+    public function submit(SubmissionRequest $request)
     {
-        $submissionData = SubmissionData::fromRequest($request);
-        if ($this->submissionRepository->getSubmissionByEmail($submissionData->getEmail())) {
-            return response()->json(['error' => 'The submission with this email already exists.'], 400);
-        }
-
         try {
-            ProcessSubmission::dispatch($submissionData);
+            ProcessSubmission::dispatch(SubmissionData::fromRequest($request));
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
-        return response()->json(['message' => 'Submission received!'], 200);
+        return response()->json(['message' => 'Submission received!'], Response::HTTP_OK);
     }
 }

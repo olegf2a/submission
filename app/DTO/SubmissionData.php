@@ -2,6 +2,8 @@
 
 namespace App\DTO;
 
+use App\Http\Requests\SubmissionRequest;
+
 class SubmissionData
 {
     public function __construct(
@@ -11,18 +13,12 @@ class SubmissionData
     )
     {}
 
-    /**
-     * Create a new instance from request data.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return self
-     */
-    public static function fromRequest($request): self
+    public static function fromRequest(SubmissionRequest $request): static
     {
         return new self(
-            $request->input('name'),
-            $request->input('email'),
-            $request->input('message')
+            name: $request->validated('name'),
+            email: $request->validated('email'),
+            message: $request->validated('message'),
         );
     }
 

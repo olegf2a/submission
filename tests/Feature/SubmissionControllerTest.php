@@ -74,7 +74,6 @@ class SubmissionControllerTest extends TestCase
 
         $response = $this->postJson('/api/v1/submit', $data);
 
-        $response->assertStatus(400)
-            ->assertJson(['error' => 'The submission with this email already exists.']);
+        $response->assertStatus(422);
     }
 }
